@@ -20,24 +20,33 @@ def send():
         
         # Python 3 users
         # input = input(">> ")
-    #rospy.loginfo("tx")
-    #ser.write(hello_str)
+    rospy.loginfo("tx!")
+    ser.write(hello_str)
 
 def receive():
     out = ''
     out += ser.read(1)
     time.sleep(1)
+    rospy.loginfo("rx: ")
     rospy.loginfo(out) 
+    pub1.publish(out)
 
 
 if __name__ == '__main__':
 
     # configure the serial connections (the parameters differs on the device you are connecting to)
-   ser.isOpen()
-   rospy.init_node('XBee_2')
-   pub=rospy.Publisher('XBee_2_TX', String, queue_size=10)
-   rate=rospy.Rate(10)
-   rospy.Subscriber("XBee_1_TX", String, receive)
+  ser.isOpen()
+  rospy.init_node('XBee_2')
+  pub=rospy.Publisher('XBee_2_TX', String, queue_size=10)
+  pub1=rospy.Publisher('XBee_2_RX', String, queue_size=10)
+  rate=rospy.Rate(10)
+  p = Process(target=send, args=())
+  q = Process(target=receive, args=())    
    while not rospy.is_shutdown():
-        send()
-        rate.sleep()
+      p.start()
+      q.start()
+      rate.sleep()
+  
+  p.join()
+  q.join()
+      
