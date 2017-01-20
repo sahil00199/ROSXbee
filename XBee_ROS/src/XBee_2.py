@@ -42,11 +42,11 @@ if __name__ == '__main__':
   rate=rospy.Rate(10)
   p = Process(target=send, args=())
   q = Process(target=receive, args=())    
-   while not rospy.is_shutdown():
+  while not rospy.is_shutdown():
       p.start()
       q.start()
+      p.join()
+      q.join()
       rate.sleep()
   
-  p.join()
-  q.join()
       

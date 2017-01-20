@@ -36,17 +36,17 @@ if __name__ == '__main__':
 
     # configure the serial connections (the parameters differs on the device you are connecting to)
   ser.isOpen()
-  rospy.init_node('XBee_1')
-  pub=rospy.Publisher('XBee_1_TX', String, queue_size=10)
-  pub1=rospy.Publisher('XBee_1_RX', String, queue_size=10)
+  rospy.init_node('XBee_2')
+  pub=rospy.Publisher('XBee_2_TX', String, queue_size=10)
+  pub1=rospy.Publisher('XBee_2_RX', String, queue_size=10)
   rate=rospy.Rate(10)
   p = Process(target=send, args=())
   q = Process(target=receive, args=())    
-   while not rospy.is_shutdown():
+  while not rospy.is_shutdown():
       p.start()
       q.start()
+      p.join()
+      q.join()
       rate.sleep()
   
-  p.join()
-  q.join()
       
