@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import time
 import serial
 import rospy
@@ -23,17 +24,17 @@ def send():
 
 def receive():
     out = ''
-    out += ser.read(1)
+    out += ser.read(10)
     time.sleep(1)
     pub_rx.publish(out)
-    rospy.loginfo("Rcvd Mssg",out)
+    rospy.loginfo("Rcvd Mssg"+out)
 
 
 if __name__ == '__main__':
 
     # configure the serial connections (the parameters differs on the device you are connecting to)
     ser.isOpen()
-    rospy.init_node('XBee_1', anonymous=true)
+    rospy.init_node('XBee_1')
     pub_tx=rospy.Publisher('XBee_1_TX', String, queue_size=10)
     pub_rx=rospy.Publisher('XBee_1_RX', String, queue_size=10)
     rate=rospy.Rate(0.1)
