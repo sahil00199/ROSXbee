@@ -8,24 +8,6 @@ from std_msgs.msg import String
 from collections import deque
 from sensor_msgs.msg import NavSatFix
 
-class gps_data:
-    latitude = "0.0"
-    longitude = "0.0"
-    altitude = "0.0"
-
-    def __int__():
-        latitude = "0.0"
-        longitude = "0.0"
-        altitude = "0.0"
-    
-    def callback(self , data):
-        #rospy.loginfo("lat is: " + str(data.latitude))
-        #rospy.loginfo("long is: " + str(data.longitude))
-        #rospy.loginfo("alt is: " + str(data.altitude))
-        self.latitude = str(data.latitude)
-        self.longitude = str(data.longitude)
-        self.altitude = str(data.altitude)
-
 ser = serial.Serial(
     port='/dev/ttyUSB0',
     baudrate=9600,
@@ -36,14 +18,22 @@ ser = serial.Serial(
     )
 
 
+class gps_data:
+    latitude = "0.0"
+    longitude = "0.0"
+    altitude = "0.0"
 
-def send():
-    backlog = deque('')
+    def __int__():
+        latitude = "0.0"
+        longitude = "0.0"
+        altitude = "0.0"
+
+def callback(data):
     input = gps_data()
-    rospy.Subscriber("/mavros/global_position/raw/fix", NavSatFix, input.callback)
-    #rospy.loginfo(input.latitude)
-        # Python 3 users
-        # input = input(">> ")
+    input.latitude = str(data.latitude)
+    input.longitude = str(data.longitude)
+    input.altitude = str(data.altitude)
+    backlog = deque('')
     backlog.extendleft("start/")
     backlog.extendleft(input.latitude + "/")
     backlog.extendleft(input.longitude + "/")
@@ -55,6 +45,8 @@ def send():
         rospy.loginfo("sent: " + x)
         ser.write(x + '\r\n')
         #rospy.loginfo("txed")
+
+
 
 def receive():
     backlog = deque('')
@@ -81,8 +73,7 @@ if __name__ == '__main__':
     pub_tx=rospy.Publisher('XBee_1_TX', String, queue_size=10)
     pub_rx=rospy.Publisher('XBee_1_RX', String, queue_size=10)
     rate=rospy.Rate(1)
-    thread.start_new_thread(receive,())
+    rospy.Subscriber("/mavros/global_position/raw/fix", NavSatFix, callback)
     while not rospy.is_shutdown():
-        thread.start_new_thread(send,())
         thread.start_new_thread(receive, ())        
         rate.sleep()    
