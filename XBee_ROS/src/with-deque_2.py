@@ -51,15 +51,17 @@ def send():
 def receive():
     message = deque('')
     out = ser.read(10)
-    message.extedleft(out)
+    message.extendleft(out)
     mes = ''
     while not len(message) == 0:
         mes += message.pop()
-    dis = mes.split('@' , 1)[1].split('$' , 1)[0]
-    mes = mes.split('$' , 1)[1]
-    if dis != '':
-        pub_rx.publish(dis)
-        rospy.loginfo(dis)
+    if len(mes) != 0:
+        dis = mes.split('@' , 1)[1]
+        dis = dis.split('$' , 1)[0]
+        mes = mes.split('$' , 1)[1]
+        if dis != '':
+            pub_rx.publish(dis)
+            rospy.loginfo(dis)
 
 
 if __name__ == '__main__':
