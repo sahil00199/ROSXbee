@@ -50,7 +50,7 @@ def send():
 
 def receive():
     message = deque('')
-    out = ser.read(10)
+    out = ser.readline()
     message.extendleft(out)
     mes = ''
     while not len(message) == 0:

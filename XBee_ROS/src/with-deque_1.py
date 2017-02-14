@@ -9,7 +9,7 @@ from collections import deque
 from sensor_msgs.msg import NavSatFix
 
 ser = serial.Serial(
-    port='/dev/ttyUSB0',
+    port='/dev/ttyUSB1',
     baudrate=9600,
     parity=serial.PARITY_ODD,
     stopbits=serial.STOPBITS_TWO,
@@ -39,11 +39,12 @@ def callback(data):
     backlog.extendleft(str(data.longitude) + "/")
     backlog.extendleft(str(data.altitude))
     backlog.extendleft("$")
+    backlog.extendleft("\n")
     while not len(backlog) == 0:
         x = backlog.pop()
         pub_tx.publish(x)
         rospy.loginfo("sent: " + x)
-        ser.write(x + '\r\n')
+        ser.write(x)
         #rospy.loginfo("txed")
 
 
