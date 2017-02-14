@@ -8,24 +8,6 @@ from std_msgs.msg import String
 from collections import deque
 from sensor_msgs.msg import NavSatFix
 
-class gps_data:
-    latitude = ""
-    longitude = ""
-    altitude = ""
-
-    def __int__():
-        latitude = "0.0"
-        longitude = "0.0"
-        altitude = "0.0"
-    
-    def callback(self , data):
-        #rospy.loginfo("lat is: " + str(data.latitude))
-        #rospy.loginfo("long is: " + str(data.longitude))
-        #rospy.loginfo("alt is: " + str(data.altitude))
-        self.latitude = str(data.latitude)
-        self.longitude = str(data.longitude)
-        self.altitude = str(data.altitude)
-
 ser = serial.Serial(
     port='/dev/ttyUSB0',
     baudrate=9600,
@@ -36,11 +18,27 @@ ser = serial.Serial(
     )
 
 
+class gps_data:
+    latitude = "0.0"
+    longitude = "0.0"
+    altitude = "0.0"
 
-def send():
+    def __int__():
+        latitude = "0.0"
+        longitude = "0.0"
+        altitude = "0.0"
+
+def callback(data):
+    input = gps_data()
+    input.latitude = str(data.latitude)
+    input.longitude = str(data.longitude)
+    input.altitude = str(data.altitude)
     backlog = deque('')
-    input = ''
-    
+    backlog.extendleft("start/")
+    backlog.extendleft(input.latitude + "/")
+    backlog.extendleft(input.longitude + "/")
+    backlog.extendleft(input.altitude)
+    backlog.extendleft("/stop")
     while not len(backlog) == 0:
         x = backlog.pop()
         pub_tx.publish(x)
@@ -48,15 +46,20 @@ def send():
         ser.write(x + '\r\n')
         #rospy.loginfo("txed")
 
+
+
 def receive():
-    message = deque('')
+    backlog = deque('')
     out = ser.read(10)
-    message.extedleft(out)
-    mes = ''
-    while not len(message) == 0:
-        mes += message.pop()
-    dis = mes.split('@' , 1)[1].split('$' , 1)[0]
-    mes = mes.split('$' , 1)[1]
+    #rospy.loginfo(out)
+    backlog.extendleft(out)
+    #time.sleep(1)
+    #while 1:
+     #  rospy.loginfo(backlog)
+    #   time.sleep(1)
+    dis = ''
+    while not len(backlog) == 0:
+        dis += backlog.pop()
     if dis != '':
         pub_rx.publish(dis)
         rospy.loginfo(dis)
@@ -69,9 +72,8 @@ if __name__ == '__main__':
     rospy.init_node('XBee_1')
     pub_tx=rospy.Publisher('XBee_1_TX', String, queue_size=10)
     pub_rx=rospy.Publisher('XBee_1_RX', String, queue_size=10)
-    rate=rospy.Rate(2)
-    thread.start_new_thread(receive,())
+    rate=rospy.Rate(1)
+    rospy.Subscriber("/mavros/global_position/raw/fix", NavSatFix, callback)
     while not rospy.is_shutdown():
-        thread.start_new_thread(send,())
         thread.start_new_thread(receive, ())        
         rate.sleep()    

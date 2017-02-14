@@ -49,14 +49,17 @@ def send():
         #rospy.loginfo("txed")
 
 def receive():
-    message = deque('')
+    backlog = deque('')
     out = ser.read(10)
-    message.extedleft(out)
-    mes = ''
-    while not len(message) == 0:
-        mes += message.pop()
-    dis = mes.split('@' , 1)[1].split('$' , 1)[0]
-    mes = mes.split('$' , 1)[1]
+    #rospy.loginfo(out)
+    backlog.extendleft(out)
+    #time.sleep(1)
+    #while 1:
+     #  rospy.loginfo(backlog)
+    #   time.sleep(1)
+    dis = ''
+    while not len(backlog) == 0:
+        dis += backlog.pop()
     if dis != '':
         pub_rx.publish(dis)
         rospy.loginfo(dis)

@@ -29,16 +29,16 @@ class gps_data:
         altitude = "0.0"
 
 def callback(data):
-    input = gps_data()
-    input.latitude = str(data.latitude)
-    input.longitude = str(data.longitude)
-    input.altitude = str(data.altitude)
+    #input = gps_data()
+    #input.latitude = str(data.latitude)
+    #input.longitude = str(data.longitude)
+    #input.altitude = str(data.altitude)
     backlog = deque('')
-    backlog.extendleft("start/")
-    backlog.extendleft(input.latitude + "/")
-    backlog.extendleft(input.longitude + "/")
-    backlog.extendleft(input.altitude)
-    backlog.extendleft("/stop")
+    backlog.extendleft("@")
+    backlog.extendleft(str(data.latitude) + "/")
+    backlog.extendleft(str(data.longitude) + "/")
+    backlog.extendleft(str(data.altitude))
+    backlog.extendleft("$")
     while not len(backlog) == 0:
         x = backlog.pop()
         pub_tx.publish(x)
